@@ -1,0 +1,13 @@
+#kafka configuration
+kafka:
+  brokers: localhost:9092
+  serializer-class: com.example.camel.kafka.convertor.MessageWrapperSerializer
+  deserializer-class: com.example.camel.kafka.convertor.MessageWrapperDeserializer
+  reconnect-backoff-ms: 2000
+  max-block-ms: 5000
+
+#kafka consumer-producer configs
+kafkaProducerConsumerProperties: ?brokers=localhost:9092&valueDeserializer=com.example.camel.kafka.convertor.MessageWrapperDeserializer&serializerClass=com.example.camel.kafka.convertor.MessageWrapperSerializer&maxBlockMs=360000&reconnectBackoffMaxMs=360000
+
+kafkainbounbd: kafka:inbound
+kafkaoutbound: kafka:outbound
