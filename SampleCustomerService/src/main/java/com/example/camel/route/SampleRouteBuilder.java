@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  * A Camel Java DSL Router
  */
 @Component
-public class MyRouteBuilder extends RouteBuilder {
+public class SampleRouteBuilder extends RouteBuilder {
     /**
      * Let's configure the Camel routing rules using Java code...
      */
@@ -28,7 +28,7 @@ public class MyRouteBuilder extends RouteBuilder {
                 // Since we're using Spring Boot, the default servlet container is Tomcat.
                 .component("servlet")
                 // Allow Camel to try to marshal/unmarshal between Java objects and JSON
-                .bindingMode(RestBindingMode.auto);
+                .bindingMode(RestBindingMode.json);
 
         // Kafka Producer
         from("file:src/data?noop=true")
@@ -38,24 +38,12 @@ public class MyRouteBuilder extends RouteBuilder {
         from(new InBoundProperties().getUri())
                 .log("Message received from Kafka : ${body}")
                 .log("    on the topic ${headers[kafka.TOPIC]}")
-                .setHeader("id", simple("${random(1,2)}"));
-                 //.to("rest:get:/employees/{id}").log("${body}");
-                //.to("http://localhost:8080/employees/1").process(new MyProcessor());
+                //.to("file:src/output?noop=true")
+                .process(new MyProcessor());
 
-        //rest("/employees/1").get().to(new OutBoundProperties().getUri());
-                //get("/{id}").to("direct:customerDetail")
-                //.get("/{id}/orders").to("direct:customerOrders")
-                //.post("/neworder").to("direct:customerNewOrder");
-
-        //from("file:src/data2?noop=true")
+        //from("file:src/output?noop=true")
         //        .setHeader(KafkaConstants.KEY, constant("Camel")) // Key of the message
         //        .to(new OutBoundProperties().getUri());
 
-        //from(new OutBoundProperties().getUri())
-        //        .log("Message received from Kafka : ${body}")
-        //        .log("    on the topic ${headers[kafka.TOPIC]}")
-        //        .log("    on the partition ${headers[kafka.PARTITION]}")
-        ////        .log("    with the offset ${headers[kafka.OFFSET]}")
-        //        .log("    with the key ${headers[kafka.KEY]}").bean(ConsumerBean.class, "consume");
     }
 }
