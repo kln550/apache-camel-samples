@@ -17,10 +17,10 @@ public class SampleRestRoute extends RouteBuilder {
         // call the embedded rest service from the PetController
         //restConfiguration().host("localhost").port(8080).component("servlet").bindingMode(RestBindingMode.json);
 
-       // from("timer:hello?period=20000")
+       //from("timer:hello?period=20000")
        //         .setHeader("id", simple("${random(1,3)}"))
        //         .to("rest:get:employees/{id}")
-       //        .log("${body}");
+       //       .log("${body}");
     }
 
 }
