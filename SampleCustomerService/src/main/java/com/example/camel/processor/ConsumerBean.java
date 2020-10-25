@@ -1,4 +1,4 @@
-package com.example.camel;
+package com.example.camel.processor;
 
 import org.apache.camel.Body;
 import org.slf4j.Logger;

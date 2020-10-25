@@ -1,4 +1,4 @@
-package com.example.camel;
+package com.example.camel.kafka.config;
 
 public class OutBoundProperties {
   private String brokers = "localhost:9092";
