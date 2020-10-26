@@ -15,18 +15,13 @@ import java.io.InputStream;
  * A Camel Java DSL Router
  */
 @Component
-public class SampleRouteBuilder extends RouteBuilder {
+public class AddressGetRouteBuilder extends RouteBuilder {
     /**
      * Let's configure the Camel routing rules using Java code...
      */
     @Override
     public void configure() throws Exception {
         restConfiguration().host("localhost").port(8080).component("servlet").bindingMode(RestBindingMode.json);
-
-        // Kafka Producer[Inbound].
-        from("file:src/data?noop=true")
-                .setHeader(KafkaConstants.KEY, constant("Camel")) // Key of the message
-                .to(new InBoundProperties().getUri());
 
         // 1. Kafka inbound topic consumer
         // 2. Parse and get employee id.
@@ -37,18 +32,13 @@ public class SampleRouteBuilder extends RouteBuilder {
                 .log("\n*** on the topic ${headers[kafka.TOPIC]}")
                 .process(new EmployeeIdProcessor())
                 .log("\nEmployee id from Kafka topic ${id}")
-                .to("rest:get:employees/{id}")
+                .to("rest:get:employees/{id}/address")
                 .log("\nBody after employee GET ${body}")
                 .process(exchange -> {
                     InputStream in = exchange.getIn().getBody(InputStream.class);
                     in.reset();
                 }).process(new EmployeeRestProcessor())
                 .to(new OutBoundProperties().getUri());
-
-        // Kafka Consumer[Outbound].
-        from(new OutBoundProperties().getUri())
-                .log("\n*** Message received from Kafka[Outbound] : ${body}")
-                .log("\n*** on the topic ${headers[kafka.TOPIC]}").to("file:src/data-output?noop=true&fileName=employee-outbound.json");
 
     }
 }
