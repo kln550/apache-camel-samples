@@ -1,6 +1,6 @@
 package com.example.camel.kafka.config;
 
-public class InBoundProperties {
+public class EmployeeInbound {
     private String brokers = "localhost:9092";
     private String topic = "inbound";
     private String serializerClass = "org.apache.kafka.common.serialization.StringSerializer";

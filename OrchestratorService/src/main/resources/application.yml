@@ -1,0 +1,12 @@
+#kafka configuration
+kafka:
+  brokers: localhost:9092
+  serializer-class: org.apache.kafka.common.serialization.StringSerializer
+  deserializer-class: org.apache.kafka.common.serialization.StringSerializer
+  reconnect-backoff-ms: 2000
+  max-block-ms: 5000
+
+
+  server:
+    port: 9090
+
