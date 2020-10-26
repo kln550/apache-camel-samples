@@ -23,7 +23,7 @@ public class SampleRouteBuilder extends RouteBuilder {
     public void configure() throws Exception {
         restConfiguration().host("localhost").port(8080).component("servlet").bindingMode(RestBindingMode.json);
 
-        // Kafka Producer.
+        // Kafka Producer[Inbound].
         from("file:src/data?noop=true")
                 .setHeader(KafkaConstants.KEY, constant("Camel")) // Key of the message
                 .to(new InBoundProperties().getUri());
@@ -44,5 +44,11 @@ public class SampleRouteBuilder extends RouteBuilder {
                     in.reset();
                 }).process(new EmployeeRestProcessor())
                 .to(new OutBoundProperties().getUri());
+
+        // Kafka Consumer[Outbound].
+        from(new OutBoundProperties().getUri())
+                .log("\n*** Message received from Kafka[Outbound] : ${body}")
+                .log("\n*** on the topic ${headers[kafka.TOPIC]}").to("file:src/data-output?noop=true&fileName=employee-outbound.json");
+
     }
 }

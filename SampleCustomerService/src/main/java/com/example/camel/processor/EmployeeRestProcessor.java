@@ -19,14 +19,8 @@ public class EmployeeRestProcessor implements Processor {
 
     public void process(Exchange exchange) throws Exception {
         String employeeDetails = exchange.getIn().getBody(String.class);
-
-        //byte[] body2 = (byte[]) exchange.getIn().getBody();
-        ///String body33 = new String(body2);
-
-        //EmployeeDetails employeeResponse = exchange.getIn().getBody(EmployeeDetails.class);
-        //String employeeDetails = employeeToString(employeeResponse);
-        //exchange.getIn().setBody(employeeDetails);
         System.out.println("**** Body before before sending to Outbound topic ***** " + employeeDetails);
+        exchange.getIn().setBody(employeeDetails);
     }
 
     @Converter
