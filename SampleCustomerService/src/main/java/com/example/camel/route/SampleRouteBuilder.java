@@ -1,14 +1,15 @@
 package com.example.camel.route;
 
-import com.example.camel.processor.ConsumerBean;
 import com.example.camel.kafka.config.InBoundProperties;
 import com.example.camel.kafka.config.OutBoundProperties;
-import com.example.camel.processor.MyProcessor;
-import org.apache.camel.Exchange;
+import com.example.camel.processor.EmployeeIdProcessor;
+import com.example.camel.processor.EmployeeRestProcessor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.kafka.KafkaConstants;
 import org.apache.camel.model.rest.RestBindingMode;
 import org.springframework.stereotype.Component;
+
+import java.io.InputStream;
 
 /**
  * A Camel Java DSL Router
@@ -20,30 +21,28 @@ public class SampleRouteBuilder extends RouteBuilder {
      */
     @Override
     public void configure() throws Exception {
-        // configures REST DSL to use servlet component and in JSON mode
-        // This section is required - it tells Camel how to configure the REST service
-        restConfiguration().host("localhost").port(8080)
-                // Use the 'servlet' component.
-                // This tells Camel to create and use a Servlet to 'host' the RESTful API.
-                // Since we're using Spring Boot, the default servlet container is Tomcat.
-                .component("servlet")
-                // Allow Camel to try to marshal/unmarshal between Java objects and JSON
-                .bindingMode(RestBindingMode.json);
+        restConfiguration().host("localhost").port(8080).component("servlet").bindingMode(RestBindingMode.json);
 
-        // Kafka Producer
+        // Kafka Producer.
         from("file:src/data?noop=true")
                 .setHeader(KafkaConstants.KEY, constant("Camel")) // Key of the message
                 .to(new InBoundProperties().getUri());
 
+        // 1. Kafka inbound topic consumer
+        // 2. Parse and get employee id.
+        // 3. Pass id to employee REST API get
+        // 4. Publish employee response to outbound topic.
         from(new InBoundProperties().getUri())
-                .log("Message received from Kafka : ${body}")
-                .log("    on the topic ${headers[kafka.TOPIC]}")
-                //.to("file:src/output?noop=true")
-                .process(new MyProcessor());
-
-        //from("file:src/output?noop=true")
-        //        .setHeader(KafkaConstants.KEY, constant("Camel")) // Key of the message
-        //        .to(new OutBoundProperties().getUri());
-
+                .log("\n*** Message received from Kafka : ${body}")
+                .log("\n*** on the topic ${headers[kafka.TOPIC]}")
+                .process(new EmployeeIdProcessor())
+                .log("\nEmployee id from Kafka topic ${id}")
+                .to("rest:get:employees/{id}")
+                .log("\nBody after employee GET ${body}")
+                .process(exchange -> {
+                    InputStream in = exchange.getIn().getBody(InputStream.class);
+                    in.reset();
+                }).process(new EmployeeRestProcessor())
+                .to(new OutBoundProperties().getUri());
     }
 }
