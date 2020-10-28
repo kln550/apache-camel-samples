@@ -11,7 +11,7 @@
 	</parent> -->
 
 	<groupId>com.example</groupId>
-	<artifactId>coonector-camel-kafka-service</artifactId>
+	<artifactId>camel-kafka-connector-service</artifactId>
 	<version>1.0-RELEASE</version>
 
 	<properties>

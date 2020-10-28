@@ -1,15 +1,15 @@
 package com.example.camel.route;
 
+import java.io.InputStream;
+
+import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.model.rest.RestBindingMode;
+import org.springframework.stereotype.Component;
+
 import com.example.camel.kafka.config.InBoundProperties;
 import com.example.camel.kafka.config.OutBoundProperties;
 import com.example.camel.processor.EmployeeIdProcessor;
 import com.example.camel.processor.EmployeeRestProcessor;
-import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.kafka.KafkaConstants;
-import org.apache.camel.model.rest.RestBindingMode;
-import org.springframework.stereotype.Component;
-
-import java.io.InputStream;
 
 /**
  * A Camel Java DSL Router
@@ -21,7 +21,7 @@ public class AddressGetRouteBuilder extends RouteBuilder {
      */
     @Override
     public void configure() throws Exception {
-        restConfiguration().host("localhost").port(8080).component("servlet").bindingMode(RestBindingMode.json);
+        restConfiguration().host("localhost").port(8090).component("servlet").bindingMode(RestBindingMode.json);
 
         // 1. Kafka inbound topic consumer
         // 2. Parse and get employee id.

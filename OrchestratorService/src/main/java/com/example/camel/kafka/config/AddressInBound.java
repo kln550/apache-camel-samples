@@ -13,3 +13,4 @@ public class AddressInBound {
                 "&keySerializerClass=" + keySerializerClass;
     }
 }
+

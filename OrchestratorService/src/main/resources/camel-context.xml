@@ -1,38 +1,28 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- START SNIPPET: e1 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd  http://camel.apache.org/schema/spring  http://camel.apache.org/schema/spring/camel-spring.xsd">
-    <!-- END SNIPPET: e1 -->
-    <!-- START SNIPPET: e2 -->
-    <bean class="org.apache.camel.component.kafka.KafkaComponent" id="kafka">
-        <property name="brokers" value="${kafka.bootstrap.url}"/>
-    </bean>
-    <bean class="java.io.File" id="filerepo">
-        <constructor-arg type="java.lang.String" value="${fileOffsetrepoPath}"/>
-    </bean>
-    <bean class="org.apache.camel.impl.engine.FileStateRepository"
-          factory-method="fileStateRepository" id="offsetRepo" init-method="doStart">
-        <constructor-arg ref="filerepo"/>
-    </bean>
-    <bean class="com.example.camel.KafkaProcessor" id="kafkaProcessor"/>
-    <!-- END SNIPPET: e2 -->
-    <!-- START SNIPPET: e3 -->
-    <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
-        <route id="consumer-route1">
-            <!--from id="kafka-consumer-1" uri="kafka:{{consumer.topic}}?groupId={{consumer.group}}&amp;offsetRepository=##offsetRepo"/-->
-            <from id="kafka-consumer-1" uri="kafka:{{consumer.topic}}?offsetRepository=##offsetRepo"/>
-            <log id="route-log-1" message="consumer >>> ${body}"/>
+       xmlns:camel="http://camel.apache.org/schema/spring"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+        
+          <!-- This is the Camel route which asks for input and aggregates incoming numbers -->
+        <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+        <route id="from-file-to-employee-inbound">
+            <from uri="file:src/data?noop=true"/>
+            <to uri="kafka:inbound?brokers=localhost:9092"/>
         </route>
-        <route id="producer-route-1">
-            <from id="route-timer-1" uri="timer://foo?period={{period}}"/>
-            <setBody id="route-setBody-1">
-                <simple>This is first producer: ${id}</simple>
-            </setBody>
-            <to id="_kafka1" uri="kafka:{{producer.topic}}?key=${id}"/>
-            <log id="route-log-producer-1" message="producer >>> ${body}"/>
-            <bean id="_bean1" ref="kafkaProcessor"/>
+        <route id="from-outbound-employee-topic">
+            <from id="kafka_outbound_employee"
+                  uri="kafka:outbound?brokers=localhost:9092"/>
+            <log id="route-log-consumer-1" message="From  employee outbound topic  >>> ${body}"/>
+            <to id="to_file_employee" uri="file:src/data-output?noop=true&amp;fileName=employee-info.json"/>
+            <to id="kafka_address_inbound" uri="kafka:edit-inbound?brokers=localhost:9092"/>
+        </route>
+        <route id="from-outbound-address-topic">
+            <from id="kafka-outbound-address"
+                  uri="kafka:edit-outbound?brokers=localhost:9092"/>
+            <log id="route-log-consumer-2" message="From >>> ${body}"/>
+            <to id="to_file_address_output" uri="file:src/data-output?noop=true&amp;fileName=employee-address.json"/>
         </route>
     </camelContext>
-    <!-- END SNIPPET: e3 -->
 </beans>

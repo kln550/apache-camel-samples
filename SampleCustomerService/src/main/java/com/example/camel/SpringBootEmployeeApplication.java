@@ -6,10 +6,10 @@ import org.springframework.context.annotation.ImportResource;
 
 @SpringBootApplication
 //@ImportResource({"classpath:camel-context.xml"})
-public class SpringBootCamelKafkaApplication {
+public class SpringBootEmployeeApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SpringBootCamelKafkaApplication.class, args);
+        SpringApplication.run(SpringBootEmployeeApplication.class, args);
     }
 
 }
