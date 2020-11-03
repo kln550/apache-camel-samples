@@ -4,25 +4,24 @@
        xsi:schemaLocation="
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
-        
-          <!-- This is the Camel route which asks for input and aggregates incoming numbers -->
-        <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
-        <route id="from-file-to-employee-inbound">
-            <from uri="file:src/data?noop=true"/>
-            <to uri="kafka:inbound?brokers=localhost:9092"/>
+
+    <bean id="employeeIdProcessor" class="com.example.camel.processor.EmployeeIdProcessor"/>
+    <bean id="employeeRestProcessor" class="com.example.camel.processor.EmployeeRestProcessor"/>
+    <!-- This is the Camel route which asks for input and aggregates incoming numbers -->
+    <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+        <packageScan>
+            <package>com.example.camel.routes</package>
+        </packageScan>
+        <route id="employee-topic">
+            <from uri="kafka:outbound?brokers=localhost:9092"/>
+            <log message="From  employee outbound topic  >>> ${body}"/>
+            <to uri="file:src/data-output?noop=true&amp;fileName=employee.json"/>
+            <to uri="kafka:edit-inbound?brokers=localhost:9092"/>
         </route>
-        <route id="from-outbound-employee-topic">
-            <from id="kafka_outbound_employee"
-                  uri="kafka:outbound?brokers=localhost:9092"/>
-            <log id="route-log-consumer-1" message="From  employee outbound topic  >>> ${body}"/>
-            <to id="to_file_employee" uri="file:src/data-output?noop=true&amp;fileName=employee-info.json"/>
-            <to id="kafka_address_inbound" uri="kafka:edit-inbound?brokers=localhost:9092"/>
-        </route>
-        <route id="from-outbound-address-topic">
-            <from id="kafka-outbound-address"
-                  uri="kafka:edit-outbound?brokers=localhost:9092"/>
-            <log id="route-log-consumer-2" message="From >>> ${body}"/>
-            <to id="to_file_address_output" uri="file:src/data-output?noop=true&amp;fileName=employee-address.json"/>
+        <route id="address-topic">
+            <from uri="kafka:edit-outbound?brokers=localhost:9092"/>
+            <log message="From address-outbound topic >>> ${body}"/>
+            <to uri="file:src/data-output?noop=true&amp;fileName=address.json"/>
         </route>
     </camelContext>
 </beans>
